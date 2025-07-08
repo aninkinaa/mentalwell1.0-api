@@ -34,14 +34,12 @@ async function handleStart(counseling, now) {
     psychologist_id, patient_id,
   } = counseling;
 
-  // Proses hanya jika status = waiting & payment_status = approved
   if (!(status === 'waiting' && payment_status === 'approved')) return;
 
   const start = dayjs.tz(`${schedule_date}T${start_time}`, TIMEZONE);
   if (!start.isValid() || now.isBefore(start)) return;
 
   try {
-    // Update status counseling & ubah status psikolog jadi unavailable
     await supabase
       .from('counselings')
       .update({ status: 'on_going' })
@@ -54,13 +52,12 @@ async function handleStart(counseling, now) {
 
     console.log(`▶️ Counseling ID ${id} dimulai otomatis.`);
 
-    // Cek apakah sudah ada conversation aktif
+    // Ambil conversation yang pernah ada, tanpa filter status
     const { data: existingConv, error: existingError } = await supabase
       .from('conversations')
-      .select('id')
+      .select('id, status')
       .eq('patient_id', patient_id)
       .eq('psychologist_id', psychologist_id)
-      .eq('status', 'active')
       .maybeSingle();
 
     if (existingError) {
@@ -71,11 +68,24 @@ async function handleStart(counseling, now) {
     let conversationId = null;
 
     if (existingConv && existingConv.id) {
-      // Gunakan conversation yang sudah ada
       conversationId = existingConv.id;
-      console.log(`♻️ Menggunakan conversation ID yang sudah ada: ${conversationId}`);
+      console.log(`♻️ Reuse conversation ID: ${conversationId}`);
+
+      // Kalau status conversation bukan 'active', aktifkan
+      if (existingConv.status !== 'active') {
+        const { error: reactivateError } = await supabase
+          .from('conversations')
+          .update({ status: 'active' })
+          .eq('id', conversationId);
+
+        if (reactivateError) {
+          console.error(`⚠️ Gagal mengaktifkan ulang conversation ID ${conversationId}:`, reactivateError.message);
+        } else {
+          console.log(`✅ Conversation ID ${conversationId} diaktifkan kembali`);
+        }
+      }
     } else {
-      // Buat conversation baru
+      // Buat baru
       const { data: newConv, error: convError } = await supabase
         .from('conversations')
         .insert({ patient_id, psychologist_id, status: 'active' })
@@ -91,7 +101,7 @@ async function handleStart(counseling, now) {
       console.log(`💬 Conversation baru dibuat dengan ID ${conversationId}`);
     }
 
-    // Update counseling dengan conversation_id
+    // Simpan conversation_id ke counseling
     if (conversationId) {
       const { error: updateError } = await supabase
         .from('counselings')
@@ -104,13 +114,14 @@ async function handleStart(counseling, now) {
         console.log(`✅ Counseling ID ${id} dikaitkan dengan conversation ID ${conversationId}`);
       }
     } else {
-      console.warn(`⚠️ Tidak bisa update conversation_id karena ID tidak ditemukan`);
+      console.warn(`⚠️ conversationId tidak tersedia untuk counseling ID ${id}`);
     }
 
   } catch (err) {
     console.error(`❌ Gagal memulai counseling ID ${id}:`, err.message);
   }
 }
+
 
 
 async function handleFinish(counseling, now) {
