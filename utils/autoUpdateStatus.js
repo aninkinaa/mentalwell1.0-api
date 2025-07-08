@@ -78,7 +78,7 @@ async function handleFinish(counseling, now) {
   try {
     const { data } = await supabase
       .from('counselings')
-      .update({ status: 'finished' })
+      .update({ status: 'closed' })
       .eq('id', id)
       .select('conversation_id')
       .single();
