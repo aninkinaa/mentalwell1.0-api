@@ -297,7 +297,7 @@ const editPsychologist = async (psychologistId, userData, profileImageFile) => {
     try {
     userData.topics = JSON.parse(userData.topics);
     } catch (e) {
-      console.warn('❗️Failed to parse topics:', userData.topics);
+      console.warn('Failed to parse topics:', userData.topics);
       userData.topics = [];
     }
   }
@@ -306,7 +306,7 @@ const editPsychologist = async (psychologistId, userData, profileImageFile) => {
    try {
       userData.schedules = JSON.parse(userData.schedules);
     } catch (e) {
-      console.warn('❗️Failed to parse schedules:', userData.schedules);
+      console.warn('Failed to parse schedules:', userData.schedules);
       userData.schedules = [];
    }
   }
@@ -320,12 +320,8 @@ const editPsychologist = async (psychologistId, userData, profileImageFile) => {
   if (error || !psychologist) throw new Error('Psikolog tidak ditemukan');
   const userId = psychologist.user_id;
 
-  console.log('📦 Final updateUser payload:', userData);
-
-
   const updatedUser = await updateUserInfo(userId, userData, profileImageFile);
   const updatedPsy = await updatePsychologistInfo(userId, userData);
-
 
   let updatedTopics = [];
   if (Array.isArray(userData.topics)) {

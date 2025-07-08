@@ -175,42 +175,40 @@ const changePaymentStatus = async (counselingId, updatedStatus, note = null) => 
   }
 
   if (lowerStatus === 'rejected') {
-    if (lowerStatus === 'rejected') {
-        const patientEmail = updated.patients.users.email;
-        const patientName = updated.patients.users.name;
-        const rejectionNote = updated.payment_note || 'Bukti pembayaran tidak sesuai atau tidak dapat diverifikasi';
-        const patientPhone = updated.patients.users.phone_number;
+    const patientEmail = updated.patients.users.email;
+    const patientName = updated.patients.users.name;
+    const rejectionNote = updated.payment_note || 'Bukti pembayaran tidak sesuai atau tidak dapat diverifikasi';
+    const patientPhone = updated.patients.users.phone_number;
+  
+    await sendPatientRejectedEmail(patientEmail, patientName, rejectionNote);
+    if (patientPhone) {
+      await sendWhatsAppPatientRejected(patientPhone, patientName, rejectionNote);
+    }
       
-        await sendPatientRejectedEmail(patientEmail, patientName, rejectionNote);
-        if (patientPhone) {
-          await sendWhatsAppPatientRejected(patientPhone, patientName, rejectionNote);
-        }
-      } 
-      
-      if (updated.access_type === 'scheduled') {
-        const { data: bookedSchedule, error: selectError } = await supabase
-          .from('booked_schedules')
-          .select('id')
-          .eq('counseling_id', updated.id)
-          .maybeSingle();
-  
-        if (selectError) {
-          throw new Error('Gagal memeriksa booked schedule: ' + selectError.message);
-        }
-  
-        if (bookedSchedule) {
-          const { error: deleteError } = await supabase
-            .from('booked_schedules')
-            .delete()
-            .eq('counseling_id', updated.id);
-  
-          if (deleteError) {
-            throw new Error('Gagal menghapus booked schedule: ' + deleteError.message);
-          }
-        } else {
-          console.warn(`No booked schedule found for counseling_id: ${updated.id}`);
-        }
+    if (updated.access_type === 'scheduled') {
+      const { data: bookedSchedule, error: selectError } = await supabase
+        .from('booked_schedules')
+        .select('id')
+        .eq('counseling_id', updated.id)
+        .maybeSingle();
+
+      if (selectError) {
+        throw new Error('Gagal memeriksa booked schedule: ' + selectError.message);
       }
+
+      if (bookedSchedule) {
+        const { error: deleteError } = await supabase
+          .from('booked_schedules')
+          .delete()
+          .eq('counseling_id', updated.id);
+
+        if (deleteError) {
+          throw new Error('Gagal menghapus booked schedule: ' + deleteError.message);
+        }
+      } else {
+        console.warn(`No booked schedule found for counseling_id: ${updated.id}`);
+      }
+    }
   }
 
   if (lowerStatus === 'refunded') {

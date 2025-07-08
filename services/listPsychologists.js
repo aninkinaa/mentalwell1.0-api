@@ -188,7 +188,6 @@ const selectPsychologist = async (id) => {
     ...new Set(counselings.map(c => c.patient_id).filter(Boolean))
   ];
 
-  
   const { data: patientsData, error: patientsError } = await supabase
     .from('patients')
     .select('id, users (id, name, profile_image)')
