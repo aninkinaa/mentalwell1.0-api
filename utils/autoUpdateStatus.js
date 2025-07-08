@@ -4,7 +4,7 @@ const timezone = require('dayjs/plugin/timezone');
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const { supabase } = require('../config/database')
+const { supabase } = require('../config/database');
 
 const TIMEZONE = 'Asia/Jakarta';
 
@@ -68,23 +68,33 @@ async function handleStart(counseling, now) {
 }
 
 async function handleFinish(counseling, now) {
-  const { id, status, end_time, schedule_date, psychologist_id } = counseling;
+  const { id, status, start_time, end_time, schedule_date, psychologist_id } = counseling;
 
   if (status !== 'on_going' || !end_time) return;
 
-  const end = dayjs.tz(`${schedule_date}T${end_time}`, TIMEZONE);
-  if (!end.isValid() || now.isBefore(end)) return;
+  let endDate = dayjs.tz(`${schedule_date}T${end_time}`, TIMEZONE);
+
+  if (start_time && end_time < start_time) {
+    endDate = endDate.add(1, 'day'); 
+  }
+
+  if (!endDate.isValid() || now.isBefore(endDate)) return;
 
   try {
     const { data } = await supabase
       .from('counselings')
-      .update({ status: 'closed' })
+      .update({ status: 'finished' })
       .eq('id', id)
       .select('conversation_id')
       .single();
 
     await supabase.from('psychologists').update({ availability: 'available' }).eq('id', psychologist_id);
-    await supabase.from('conversations').update({ status: 'closed' }).eq('id', data.conversation_id);
+
+    // Pastikan conversation_id ada sebelum mencoba update
+    if (data && data.conversation_id) {
+      await supabase.from('conversations').update({ status: 'closed' }).eq('id', data.conversation_id);
+    }
+    
     console.log(`✅ Counseling ID ${id} selesai, conversation ditutup.`);
   } catch (err) {
     console.error(`❌ Gagal menyelesaikan counseling ID ${id}:`, err.message);
