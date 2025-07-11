@@ -2,7 +2,7 @@ const { supabase } = require('../../config/database');
 
 const allPsychologists = async () => {
   const { data, error } = await supabase
-    .from('active_psychologists_view')
+    .from('searchable_psychologists')
     .select('*')
     .order('name', { ascending: true });
 
@@ -22,7 +22,8 @@ const allPsychologists = async () => {
     bio: ps.bio,
     experience: ps.experience,
     price: ps.price,
-    availability: ps.availability
+    availability: ps.availability,
+    topics: ps.topics || [],
   }));
 };
 
