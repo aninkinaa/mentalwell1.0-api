@@ -35,6 +35,20 @@ const init = async () => {
     return h.continue;
   });
 
+  server.ext('onPreResponse', (request, h) => {
+    const response = request.response;
+    if (response.isBoom && response.output.statusCode === 413) {
+      return h
+        .response({
+          status: 'fail',
+          message:
+            'Ukuran file atau data yang kamu kirim terlalu besar. Batas maksimal adalah 2MB. Silakan kompres atau pilih file yang lebih kecil',
+        })
+        .code(413);
+    }
+    return h.continue;
+  });
+
   server.route(routes);
 
   await server.start();
