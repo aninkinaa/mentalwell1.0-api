@@ -407,6 +407,7 @@ const viewCounselings = async (userId) => {
       end_time,
       status,
       payment_status,
+      review,
       created_at,
       psychologists (
         users (
@@ -431,6 +432,7 @@ const viewCounselings = async (userId) => {
       status: counseling.status,
       payment_status: counseling.payment_status,
       created_at: counseling.created_at,
+      has_review: !!counseling.review,
     }))
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
