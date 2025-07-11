@@ -11,7 +11,7 @@ const postPsychologist = async (request, h) => {
       bio, experience, price
     } = payload;
 
-    const profileImage = payload.profile_image?._data ? payload.profile_image : null;
+   const profileImage = payload.profile_image && payload.profile_image._data ? payload.profile_image : null;
 
     console.log(profileImage, 'profileImage');
 
