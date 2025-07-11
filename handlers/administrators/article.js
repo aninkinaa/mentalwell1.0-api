@@ -8,19 +8,31 @@ const postArticle = async (request, h) => {
 
         const allowedFields = [ 'title', 'content', 'references', 'categories' ];
         const plainPayload = {}
+
         for (const key of allowedFields){
             if (payload[key] !== undefined )
                 plainPayload[key] = payload[key]
         }
 
-
-        const { error } = articleSchema.validate(plainPayload)
-        if (error) {
-            return h.response({
-                status: 'fail',
-                message: error.details[0].message
-            }).code(400);
+        if (typeof plainPayload.categories === 'string') {
+        try {
+          const parsed = JSON.parse(plainPayload.categories);
+          plainPayload.categories = Array.isArray(parsed) ? parsed.map(Number) : [Number(parsed)];
+        } catch (e) {
+          return h.response({
+            status: 'fail',
+            message: 'Format kategori tidak valid. Gunakan array angka seperti [1, 2]'
+          }).code(400);
         }
+      }
+
+      const { error } = articleSchema.validate(plainPayload)
+      if (error) {
+        return h.response({
+          status: 'fail',
+          message: error.details[0].message
+        }).code(400);
+      }
 
         const postedArticle = await createArticle(plainPayload, file)
 
