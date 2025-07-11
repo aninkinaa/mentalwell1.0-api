@@ -43,6 +43,7 @@ const postArticle = async (request, h) => {
         }).code(200);
 
     } catch (err){
+        console.error(err);
         return h.response({
             status: 'fail',
             message: 'Gagal membuat artikel'
@@ -56,13 +57,25 @@ const updateArticle = async (request, h) => {
       const payload = { ...request.payload };
       const file = payload.image?._data ? payload.image : null;
   
-      const allowedFields = ['title', 'content', 'references'];
+      const allowedFields = ['title', 'content', 'references', 'categories'];
       const plainPayload = {};
       for (const key of allowedFields) {
         if (payload[key] !== undefined)
             plainPayload[key] = payload[key];
       }
-  
+
+      if (typeof plainPayload.categories === 'string') {
+        try {
+          const parsed = JSON.parse(plainPayload.categories);
+          plainPayload.categories = Array.isArray(parsed) ? parsed.map(Number) : [Number(parsed)];
+        } catch (e) {
+          return h.response({
+            status: 'fail',
+            message: 'Format kategori tidak valid. Gunakan array angka seperti [1, 2]'
+          }).code(400);
+        }
+      }
+      
       const { error } = updateArticleSchema.validate(plainPayload);
       if (error) {
         return h.response({

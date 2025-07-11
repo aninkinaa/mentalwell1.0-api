@@ -43,28 +43,70 @@ const createArticle = async (data, file) => {
 
 
 const editArticle = async (id, data, file) => {
-    const payload = { ...data };
-  
-    if (file) {
-      const uploadResult = await uploadPhotoToSupabase({ file, folder: 'articles' });
-      if (!uploadResult.success) {
-        throw new Error('Gagal upload gambar');
-      }
-      payload.image = uploadResult.url;
+  const { categories, ...rest } = data;
+  const payload = { ...rest };
+
+  if (file) {
+    const uploadResult = await uploadPhotoToSupabase({ file, folder: 'articles' });
+    if (!uploadResult.success) {
+      throw new Error('Gagal upload gambar');
     }
+    payload.image = uploadResult.url;
+  }
+
+  const { data: updated, error } = await supabase
+    .from('articles')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw new Error('Gagal memperbarui artikel: ' + error.message);
+  }
+
+  if (Array.isArray(categories)) {
+    // Hapus relasi lama
+    const { error: deleteError } = await supabase
+      .from('articles_categories')
+      .delete()
+      .eq('article_id', id);
+
+    if (deleteError) {
+      throw new Error('Gagal menghapus kategori lama: ' + deleteError.message);
+    }
+
+    if (categories.length > 0) {
+      const relationData = categories.map(category_id => ({
+        article_id: id,
+        category_id
+      }));
+
+      const { error: insertError } = await supabase
+        .from('articles_categories')
+        .insert(relationData);
+
+      if (insertError) {
+        throw new Error('Gagal menyimpan kategori baru: ' + insertError.message);
+      }
+    }
+  }
+
+  const { data: finalCategories, error: fetchCatError } = await supabase
+  .from('articles_categories')
+  .select('category_id')
+  .eq('article_id', id);
+
+  if (fetchCatError) {
+    throw new Error('Gagal mengambil kategori terbaru: ' + fetchCatError.message);
+  }
   
-    const { data: updated, error } = await supabase
-      .from('articles')
-      .update(payload)
-      .eq('id', id)
-      .select()
-      .single();
-  
-    if (error) 
-        throw new Error('Gagal memperbarui artikel: ' + error.message);
-  
-    return updated;
+  return {
+    ...updated,
+    categories: finalCategories?.map(c => c.category_id) || []
   };
+};
+
 
 const removearticle = async (id) => {
   const { error } = await supabase
