@@ -160,11 +160,11 @@ const selectPsychologist = async (id) => {
       experience,
       availability,
       price,
-      gender,
       users (
         name,
         profile_image,
-        birthdate
+        birthdate,
+        gender
       ),
       counselings (
         review,
