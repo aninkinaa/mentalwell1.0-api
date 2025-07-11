@@ -2,44 +2,59 @@ const { supabase } = require('../../config/database')
 const { uploadPhotoToSupabase } = require('../../config/uploadFile')
 
 const createArticle = async (data, file) => {
-    const { categories, ...rest } = data;
-    let payload = { ...rest };
+  const { categories, ...rest } = data;
+  let payload = { ...rest };
 
-    if (file) {
-        const uploadResult = await uploadPhotoToSupabase({ file: file, folder: 'articles' });
-        if (!uploadResult.success) {
-            throw Error('Gagal mengunggah gambar');
-        }
-        payload.image = uploadResult.url;
+  if (file) {
+    const uploadResult = await uploadPhotoToSupabase({ file, folder: 'articles' });
+    if (!uploadResult.success) {
+      throw new Error('Gagal mengunggah gambar');
     }
+    payload.image = uploadResult.url;
+  }
 
-    const { data: inserted, error } = await supabase
-        .from('articles')
-        .insert([payload])
-        .select()
-        .single();
+  const { data: inserted, error } = await supabase
+    .from('articles')
+    .insert([payload])
+    .select()
+    .single();
 
-    if (error) {
-        throw new Error('Gagal membuat artikel: ' + error.message);
+  if (error) {
+    throw new Error('Gagal membuat artikel: ' + error.message);
+  }
+
+  if (Array.isArray(categories) && categories.length > 0) {
+    const relationData = categories.map(category_id => ({
+      article_id: inserted.id,
+      category_id
+    }));
+
+    const { error: relationError } = await supabase
+      .from('articles_categories')
+      .insert(relationData);
+
+    if (relationError) {
+      throw new Error('Artikel berhasil dibuat, tapi gagal menyimpan kategori: ' + relationError.message);
     }
+  }
 
-    if (Array.isArray(categories) && categories.length > 0) {
-        const relationData = categories.map(category_id => ({
-            article_id: inserted.id,
-            category_id
-        }));
+  const { data: categoryList, error: catError } = await supabase
+    .from('articles_categories')
+    .select('categories(id, category)')
+    .eq('article_id', inserted.id);
 
-        const { error: relationError } = await supabase
-            .from('articles_categories')
-            .insert(relationData);
+  if (catError) {
+    throw new Error('Artikel berhasil dibuat, tapi gagal mengambil kategori: ' + catError.message);
+  }
 
-        if (relationError) {
-            throw new Error('Artikel berhasil dibuat, tapi gagal menyimpan kategori: ' + relationError.message);
-        }
-    }
-
-    return inserted;
-}
+  return {
+    ...inserted,
+    categories: categoryList.map(c => ({
+      id: c.categories.id,
+      name: c.categories.category,
+    })),
+  };
+};
 
 
 const editArticle = async (id, data, file) => {
@@ -100,7 +115,7 @@ const editArticle = async (id, data, file) => {
   if (fetchCatError) {
     throw new Error('Gagal mengambil kategori terbaru: ' + fetchCatError.message);
   }
-  
+
   return {
     ...updated,
     categories: finalCategories?.map(c => c.category_id) || []
