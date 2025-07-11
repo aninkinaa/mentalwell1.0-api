@@ -13,7 +13,16 @@ You can explore the API endpoints via Postman:
 
 🔗 [View Postman Collection](https://documenter.getpostman.com/view/30109959/2sB2qi6wmH)
 
-> This includes all authentication, chat, counseling, and admin endpoints.
+> This includes all RESTful endpoints for authentication and patient/psychologist/admin features.
+
+## ✉️ Notifications
+
+This backend supports multiple types of notifications:
+
+- **Email Notifications**: for password reset requests, counseling session confirmation.
+- **WhatsApp Notifications**: for counseling session confirmation.
+
+
 
 ## 🛠 Getting Started
 
