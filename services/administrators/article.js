@@ -124,6 +124,15 @@ const editArticle = async (id, data, file) => {
 
 
 const removearticle = async (id) => {
+
+  const { data: categories, error: catError } = await supabase
+    .from('articles_categories')
+    .delete('category_id')
+    .eq('article_id', id);
+
+  if (catError) {
+    throw new Error('Gagal menghapus kategori artikel: ' + catError.message);
+  } 
   const { error } = await supabase
     .from('articles')
     .delete()
