@@ -24,17 +24,17 @@ const editProfile = async (userId, data, photoFile) => {
 
   if (fetchError) throw new Error(`Gagal mengambil data pengguna: ${fetchError.message}`);
 
-  if (currentUser.profile_image) {
-    const oldFilePath = currentUser.profile_image.split('/').pop();
-    const { error: deleteError } = await supabase.storage
-      .from('mentalwell-bucket') 
-      .remove([`profile_images/${oldFilePath}`]); 
-    if (deleteError) {
-      console.warn(`Gagal menghapus foto lama: ${deleteError.message}`);
-    }
-  }
-
   if (photoFile) {
+    // Only delete old photo if a new one is being uploaded and there is an old photo
+    if (currentUser.profile_image) {
+      const oldFilePath = currentUser.profile_image.split('/').pop();
+      const { error: deleteError } = await supabase.storage
+        .from('mentalwell-bucket') 
+        .remove([`profile_images/${oldFilePath}`]); 
+      if (deleteError) {
+        console.warn(`Gagal menghapus foto lama: ${deleteError.message}`);
+      }
+    }
     const uploadResult = await uploadPhotoToSupabase({file: photoFile, folder: 'profile_images', prefix: userId});
     if (!uploadResult.success) {
       throw new Error('Gagal mengunggah foto');

@@ -157,6 +157,22 @@ const updateUserInfo = async (userId, data, file) => {
   });
 
   if (file) {
+    const { data: currentUser } = await supabase
+      .from('users')
+      .select('profile_image')
+      .eq('id', userId)
+      .single();
+
+    if (currentUser && currentUser.profile_image) {
+      const oldFilePath = currentUser.profile_image.split('/').pop();
+      const { error: deleteError } = await supabase.storage
+        .from('mentalwell-bucket')
+        .remove([`profile_images/${oldFilePath}`]);
+      if (deleteError) {
+        console.warn(`Gagal menghapus foto lama: ${deleteError.message}`);
+      }
+    }
+
     const uploadResult = await uploadPhotoToSupabase({
       file,
       folder: 'profile_images',
