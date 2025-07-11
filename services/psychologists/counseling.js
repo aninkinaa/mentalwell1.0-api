@@ -146,7 +146,7 @@ const changeCounselingStatus = async (counselingId, updatedStatus) => {
       .update({ status: updatedStatus })
       .eq('id', counselingId)
       .select(`
-        id, schedule_date, start_time, end_time, occupation, problem_description, hope_after, status, created_at,
+        id, schedule_date, start_time, end_time, occupation, problem_description, hope_after, status, conversation_id, created_at,
         patients (
           id,
           users (
@@ -158,6 +158,15 @@ const changeCounselingStatus = async (counselingId, updatedStatus) => {
 
     if (counsError) {
         throw new Error('Gagal mengupdate status konseling: ' + counsError.message);
+    }
+
+    const {error: convoError} = await supabase
+      .from('conversations')
+      .update({status : "closed"})
+      .eq('id', counseling.conversation_id)
+
+    if (convoError) {
+        throw new Error('Gagal mengupdate status percakapan: ' + convoError.message);
     }
 
     const updatedCounseling = {
