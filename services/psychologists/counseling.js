@@ -103,6 +103,7 @@ const selectCounseling = async (counselingId) => {
         name: counseling.patients.users.name,
         nickname: counseling.patients.users.nickname,
         birthdate: counseling.patients.users.birthdate,
+        profile_image: counseling.patients.users.profile_image,
         age: calculateAge(counseling.patients.users.birthdate),
         gender: counseling.patients.users.gender,
         schedule_date: counseling.schedule_date,
