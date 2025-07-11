@@ -7,6 +7,15 @@ A mental health backend application built with Hapi.js and Supabase, deployed vi
 - **Database**: Supabase
 - **Deployment**: Railway
 
+## 📚 API Documentation
+
+You can explore the API endpoints via Postman:
+
+🔗 [View Postman Collection]([[https://www.postman.com/yourname/workspace/mentalwell-api/collection/123456-abcd123](https://documenter.getpostman.com/view/30109959/2sB2qi6wmH)](https://documenter.getpostman.com/view/30109959/2sB2qi6wmH))
+
+> This includes all authentication, chat, counseling, and admin endpoints.
+
+
 ## 🛠 Getting Started
 
 Clone the repository and start the server locally:
