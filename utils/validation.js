@@ -385,7 +385,24 @@ const articleSchema = Joi.object({
   .optional(),
 
   categories: Joi.array()
+  .items(Joi.number().integer().positive())
   .optional()
+  .custom((value, helpers) => {
+  if (value === undefined || value.length === 0) {
+    return value;
+  }
+      
+  const invalidTopic = value.find(item => typeof item !== 'number' || item <= 0);
+  if (invalidTopic) {
+    return helpers.error('number.base'); 
+  }
+
+  return value;
+  })
+  .messages({
+    'array.base': 'Categories harus berupa array angka positif',
+    'number.base': 'Category id harus berupa angka',
+  }),
 });
 
 const updateArticleSchema = Joi.object({
