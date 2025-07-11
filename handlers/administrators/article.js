@@ -3,8 +3,8 @@ const { articleSchema, updateArticleSchema } = require('../../utils/validation')
 
 const postArticle = async (request, h) => {
     try{
-        const payload = {...request.payload}
-        const file = payload.image._data? payload.image : null;
+        const payload = { ...request.payload };
+        const file = payload.image && payload.image._data ? payload.image : null;
 
         const allowedFields = [ 'title', 'content', 'references', 'categories' ];
         const plainPayload = {}
