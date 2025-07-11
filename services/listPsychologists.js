@@ -160,6 +160,7 @@ const selectPsychologist = async (id) => {
       experience,
       availability,
       price,
+      gender,
       users (
         name,
         profile_image,
@@ -219,6 +220,7 @@ const selectPsychologist = async (id) => {
   return {
     id: data.id,
     name: data.users?.name || null,
+    gender: data.users.gender || null,
     bio: data.bio || null,
     experience: data.experience || null,
     availability: data.availability,
