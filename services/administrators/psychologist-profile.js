@@ -146,7 +146,7 @@ const addPsychologist = async (userData, psychologistData, topics = [], schedule
     profile_image: user.profile_image,
     topics: insertedTopics,
     schedules: insertedSchedules
-  };
+  }
 };
 
 const updateUserInfo = async (userId, data, file) => {
@@ -157,28 +157,39 @@ const updateUserInfo = async (userId, data, file) => {
   });
 
   if (file) {
+    // Ambil data user saat ini untuk cek foto lama
     const { data: currentUser } = await supabase
       .from('users')
       .select('profile_image')
       .eq('id', userId)
       .single();
 
-    if (currentUser && currentUser.profile_image) {
-      const oldFilePath = currentUser.profile_image.split('/').pop();
-      const { error: deleteError } = await supabase.storage
-        .from('mentalwell-bucket')
-        .remove([`profile_images/${oldFilePath}`]);
-      if (deleteError) {
-        console.warn(`Gagal menghapus foto lama: ${deleteError.message}`);
+    // Hapus foto lama jika ada
+    if (currentUser?.profile_image) {
+      try {
+        const oldFileName = currentUser.profile_image.split('/').pop();
+        if (oldFileName) {
+          const { error: deleteError } = await supabase.storage
+            .from('mentalwell-bucket')
+            .remove([`profile_images/${oldFileName}`]);
+          if (deleteError) {
+            console.warn(`Gagal menghapus foto lama: ${deleteError.message}`);
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal memproses penghapusan foto lama:', e.message);
       }
     }
 
+    // Upload foto baru
     const uploadResult = await uploadPhotoToSupabase({
       file,
       folder: 'profile_images',
-      prefix: data.nickname || data.name
+      prefix: data.nickname || data.name || userId
     });
-    if (!uploadResult.success) throw new Error('Gagal mengunggah foto profil');
+    if (!uploadResult.success) {
+      throw new Error('Gagal mengunggah foto profil');
+    }
     updateUser.profile_image = uploadResult.url;
   }
 
