@@ -11,9 +11,11 @@ const postPsychologist = async (request, h) => {
       bio, experience, price
     } = payload;
 
-   const profileImage = payload.profile_image && payload.profile_image._data ? payload.profile_image : null;
-
-    console.log(profileImage, 'profileImage');
+    // Accept profile_image as optional, handle both with and without image
+    let profileImage = null;
+    if (payload.profile_image && payload.profile_image._data) {
+      profileImage = payload.profile_image;
+    }
 
     const userData = { name, nickname, email, phone_number, birthdate, gender, password };
     const psychologistData = { bio, experience, price };
