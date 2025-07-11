@@ -350,7 +350,7 @@ const psychologistDetails = async (psychologistId) => {
   .select(`
     id, bio, experience, price, availability,
     users (
-      id, name, nickname, email, phone_number, birthdate,
+      id, name, nickname, email, phone_number, birthdate, gender,
       profile_image
       ),
     psychologists_topics (
@@ -393,6 +393,7 @@ const psychologistDetails = async (psychologistId) => {
     email: user.users.email,
     phone_number: user.users.phone_number,
     birthdate: user.users.birthdate,
+    gender: user.users.gender,
     profile_image: user.users.profile_image,
     bio: user.bio,
     experience: user.experience,
