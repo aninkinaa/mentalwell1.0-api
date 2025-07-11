@@ -1,4 +1,4 @@
-# MentalWell 1.0 App
+# MentalWell 1.0 API
 
 A mental health backend application built with Hapi.js and Supabase, deployed via Railway.
 
