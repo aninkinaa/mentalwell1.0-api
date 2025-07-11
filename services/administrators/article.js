@@ -2,28 +2,45 @@ const { supabase } = require('../../config/database')
 const { uploadPhotoToSupabase } = require('../../config/uploadFile')
 
 const createArticle = async (data, file) => {
-    payload = {...data}
+    const { categories, ...rest } = data;
+    let payload = { ...rest };
 
-    if(file){
-        const uploadResult = await uploadPhotoToSupabase({file: file, folder: 'articles'});
-        if(!uploadResult.success){
-            throw Error('Gagal mengunggah gambar')
+    if (file) {
+        const uploadResult = await uploadPhotoToSupabase({ file: file, folder: 'articles' });
+        if (!uploadResult.success) {
+            throw Error('Gagal mengunggah gambar');
         }
         payload.image = uploadResult.url;
     }
 
     const { data: inserted, error } = await supabase
-     .from('articles') 
-     .insert([payload])
-     .select()
-     .single();
+        .from('articles')
+        .insert([payload])
+        .select()
+        .single();
 
     if (error) {
         throw new Error('Gagal membuat artikel: ' + error.message);
     }
 
+    if (Array.isArray(categories) && categories.length > 0) {
+        const relationData = categories.map(category_id => ({
+            article_id: inserted.id,
+            category_id
+        }));
+
+        const { error: relationError } = await supabase
+            .from('articles_categories')
+            .insert(relationData);
+
+        if (relationError) {
+            throw new Error('Artikel berhasil dibuat, tapi gagal menyimpan kategori: ' + relationError.message);
+        }
+    }
+
     return inserted;
 }
+
 
 const editArticle = async (id, data, file) => {
     const payload = { ...data };

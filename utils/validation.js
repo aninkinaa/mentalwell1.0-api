@@ -382,9 +382,10 @@ const articleSchema = Joi.object({
     }),
 
   references: Joi.string()
+  .optional(),
+
+  categories: Joi.array()
   .optional()
-
-
 });
 
 const updateArticleSchema = Joi.object({
@@ -409,7 +410,10 @@ const updateArticleSchema = Joi.object({
     }),
 
   references: Joi.string()
-    .optional()
+    .optional(),
+
+  categories: Joi.array()
+  .optional()
 });
 
 

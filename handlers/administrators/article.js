@@ -6,7 +6,7 @@ const postArticle = async (request, h) => {
         const payload = {...request.payload}
         const file = payload.image._data? payload.image : null;
 
-        const allowedFields = [ 'title', 'content', 'references' ];
+        const allowedFields = [ 'title', 'content', 'references', 'categories' ];
         const plainPayload = {}
         for (const key of allowedFields){
             if (payload[key] !== undefined )
