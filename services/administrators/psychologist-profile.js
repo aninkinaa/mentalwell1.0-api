@@ -157,14 +157,12 @@ const updateUserInfo = async (userId, data, file) => {
   });
 
   if (file) {
-    // Ambil data user saat ini untuk cek foto lama
     const { data: currentUser } = await supabase
       .from('users')
       .select('profile_image')
       .eq('id', userId)
       .single();
 
-    // Hapus foto lama jika ada
     if (currentUser?.profile_image) {
       try {
         const oldFileName = currentUser.profile_image.split('/').pop();
@@ -180,8 +178,6 @@ const updateUserInfo = async (userId, data, file) => {
         console.warn('Gagal memproses penghapusan foto lama:', e.message);
       }
     }
-
-    // Upload foto baru
     const uploadResult = await uploadPhotoToSupabase({
       file,
       folder: 'profile_images',

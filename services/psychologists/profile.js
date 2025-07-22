@@ -199,10 +199,7 @@ const changeAvailability = async (userId, availability) => {
     .from('psychologists')
     .select(`
       id,
-      availability,
-      users (
-        id, name, email, profile_image
-      )
+      availability
     `)
     .eq('user_id', userId)
     .single();
@@ -258,9 +255,6 @@ const changeAvailability = async (userId, availability) => {
   return {
     psychologist_id: psyData.id,
     user_id: psyData.users.id,
-    name: psyData.users.name,
-    email: psyData.users.email,
-    profile_image: psyData.users.profile_image,
     updated_availability: availability,
     message: `Ketersediaan psikolog berhasil diperbarui menjadi ${availabilityMessage}.`
   };

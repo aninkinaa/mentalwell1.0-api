@@ -1,5 +1,6 @@
+const { valid } = require('joi');
 const { supabase } = require('../../config/database')
-const { NotFoundError } = require('../../utils/errors')
+const { NotFoundError, ValidationError } = require('../../utils/errors')
 
 const psychologistSchedules = async (psychologistId) => {
   const { data: psychologist, error: psychologistError } = await supabase
@@ -73,6 +74,9 @@ const checkScheduleAvailability = async (psychologistId, date, time) => {
       .maybeSingle();
   
     if (error) {
+      if (error.message.includes('invalid input syntax')){
+        throw ValidationError('Format tanggal atau waktu tidak valid');
+      }
       throw new Error('Gagal mengecek jadwal: ' + error.message);
     }
   
