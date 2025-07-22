@@ -1,4 +1,3 @@
-const { valid } = require('joi');
 const { supabase } = require('../../config/database')
 const { NotFoundError, ValidationError } = require('../../utils/errors')
 

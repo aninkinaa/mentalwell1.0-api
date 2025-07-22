@@ -146,6 +146,17 @@ const changeCounselingStatus = async (counselingId, updatedStatus) => {
       .from('counselings')
       .update({ status: updatedStatus })
       .eq('id', counselingId)
+      .select(`
+        id, schedule_date, start_time, end_time, occupation, problem_description, hope_after, status, conversation_id, created_at,
+        patients (
+          id,
+          users (
+            name, nickname, birthdate, gender
+          )
+        )
+      `)
+      .single();
+      
 
     if (counsError) {
         throw new Error('Gagal mengupdate status konseling: ' + counsError.message);
