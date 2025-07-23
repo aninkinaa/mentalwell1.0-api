@@ -10,7 +10,7 @@ dayjs.extend(timezone);
 const allPsychologists = async () => {
   const { data, error } = await supabase
   .from ('psychologists_view')
-  .select('*');
+  .select('id, name, age, profile_image, experience, availability, can_be_scheduled, can_chat_now, topics');
   
   if (error) throw new Error('Gagal ambil data psikolog: ' + error.message);
 
@@ -19,7 +19,6 @@ const allPsychologists = async () => {
     name: psych.name || null,
     age: psych.age || null,
     profile_image: psych.profile_image || null,
-    bio: psych.bio || null,
     experience: psych.experience || null,
     availability: psych.availability,
     can_be_scheduled: psych.can_be_scheduled || false,
@@ -87,8 +86,8 @@ return formatted;
 
 const searchPsychologists = async ({ name, topics }) => {
   const { data, error } = await supabase
-    .from('searchable_psychologists')
-    .select('*');
+    .from('psychologists_view')
+    .select('id, name, age, experience, availability, price, birthdate, profile_image, topics');
 
   if (error) throw new Error('Gagal ambil data psikolog: ' + error.message);
 
@@ -96,7 +95,6 @@ const searchPsychologists = async ({ name, topics }) => {
     list.map(p => ({
       id: p.id,
       name: p.name || '-',
-      bio: p.bio,
       experience: p.experience,
       availability: p.availability,
       price: p.price || null,
