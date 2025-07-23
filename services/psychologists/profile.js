@@ -222,6 +222,7 @@ const changeAvailability = async (userId, availability) => {
       .lte('start_time', currentTime)
       .gt('end_time', currentTime)
       .in('payment_status', ['waiting', 'approved'])
+      .not('status', 'eq', 'finished')
       .maybeSingle();
 
     if (conflict) {
