@@ -167,7 +167,7 @@ async function updateCounselingStatuses() {
     .in('status', ['waiting', 'on_going']);
 
   if (error) {
-    console.error('❌ Gagal mengambil data counseling:', error.message);
+    console.error('Gagal mengambil data counseling:', error.message);
     return;
   }
 
@@ -175,7 +175,7 @@ async function updateCounselingStatuses() {
     const { id, schedule_date, start_time } = counseling;
 
     if (!schedule_date || !start_time) {
-      console.warn(`⚠️ Counseling ID ${id} tidak punya jadwal lengkap, dilewati.`);
+      console.warn(`Counseling id ${id} tidak punya jadwal lengkap, dilewati.`);
       continue;
     }
 
