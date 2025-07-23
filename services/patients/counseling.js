@@ -151,27 +151,47 @@ const chatNowCounseling = async (userId, psychologistId, counselingData, payment
   const currentTime = now.format('HH:mm');
   const nextHour = now.add(1, 'hour').format('HH:mm');
 
-  const { data: patient, error: patientError } = await supabase
-    .from('patients')
-    .select(`
-      id,
-      users (
-        name,
-        nickname,
-        birthdate,
-        phone_number,
-        gender
-      )
-    `)
-    .eq('user_id', userId)
-    .single();
+  if (!paymentFile) {
+    throw new ValidationError('Harap lampirkan bukti pembayaran');
+  }
+
+  const [patientResult, psychologistResult] = await Promise.all([
+    supabase
+      .from('patients')
+      .select(`
+        id,
+        users (
+          name,
+          nickname,
+          birthdate,
+          phone_number,
+          gender
+        )
+      `)
+      .eq('user_id', userId)
+      .single(),
+
+    supabase
+      .from('psychologists')
+      .select(`
+        id,
+        availability,
+        price,
+        users (name)
+      `)
+      .eq('id', psychologistId)
+      .single()
+  ]);
+
+  const { data: patient, error: patientError } = patientResult;
+  const { data: psychologist, error: psyError } = psychologistResult;
 
   if (patientError || !patient) {
     throw new NotFoundError('Data pasien tidak ditemukan');
   }
 
-  if (!paymentFile) {
-    throw new ValidationError('Harap lampirkan bukti pembayaran');
+  if (psyError || !psychologist) {
+    throw new NotFoundError('Psikolog tidak ditemukan');
   }
 
   const uploadResult = await uploadPhotoToSupabase({
@@ -185,21 +205,6 @@ const chatNowCounseling = async (userId, psychologistId, counselingData, payment
   }
 
   const paymentProofUrl = uploadResult.url;
-
-  const { data: psychologist, error: psyError } = await supabase
-    .from('psychologists')
-    .select(`
-      id,
-      availability,
-      price,
-      users (name)
-    `)
-    .eq('id', psychologistId)
-    .single();
-
-  if (psyError || !psychologist) {
-    throw new NotFoundError('Psikolog tidak ditemukan');
-  }
 
   let failedReason = null;
   const psychologistAvailability = psychologist.availability.toLowerCase();
@@ -221,6 +226,7 @@ const chatNowCounseling = async (userId, psychologistId, counselingData, payment
       failedReason = 'Psikolog sedang dalam sesi lain.';
     }
   }
+
 
   if (!failedReason) {
     await supabase
@@ -280,6 +286,7 @@ const chatNowCounseling = async (userId, psychologistId, counselingData, payment
       : 'Sesi chat berhasil diminta. Menunggu persetujuan admin.',
   };
 };
+
 
 const bookScheduleCounseling = async (userId, psychologistId, counselingData, paymentFile) => {
   const { schedule_date, schedule_time, occupation, problem_description, hope_after } = counselingData;
