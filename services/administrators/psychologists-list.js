@@ -2,8 +2,8 @@ const { supabase } = require('../../config/database');
 
 const allPsychologists = async () => {
   const { data, error } = await supabase
-    .from('searchable_psychologists')
-    .select('*')
+    .from('psychologists_view')
+    .select('id, name, email, topics, availability')
     .order('name', { ascending: true });
 
   if (error) {
@@ -13,15 +13,8 @@ const allPsychologists = async () => {
   return data.map(ps => ({
     id: ps.id,
     name: ps.name || '-',
-    nickname: ps.nickname || '-',
     email: ps.email || '-',
-    phone_number: ps.phone_number || '-',
-    gender: ps.gender || '-',
     birthdate: ps.birthdate || '-',
-    profile_image: ps.profile_image || null,
-    bio: ps.bio,
-    experience: ps.experience,
-    price: ps.price,
     availability: ps.availability,
     topics: ps.topics || [],
   }));
