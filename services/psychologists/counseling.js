@@ -146,15 +146,7 @@ const changeCounselingStatus = async (counselingId, updatedStatus) => {
       .from('counselings')
       .update({ status: updatedStatus })
       .eq('id', counselingId)
-      .select(`
-        id, schedule_date, start_time, end_time, occupation, problem_description, hope_after, status, conversation_id, created_at,
-        patients (
-          id,
-          users (
-            name, nickname, birthdate, gender
-          )
-        )
-      `)
+      .select(`status`)
       .single();
       
 
@@ -172,19 +164,8 @@ const changeCounselingStatus = async (counselingId, updatedStatus) => {
     }
 
     const updatedCounseling = {
-        id: counseling.id,
-        name: counseling.patients.users.name,
-        nickname: counseling.patients.users.nickname,
-        birthdate: counseling.patients.users.birthdate,
-        age: calculateAge(counseling.patients.users.birthdate),
-        gender: counseling.patients.users.gender,
-        schedule_date: counseling.schedule_date,
-        schedule_time: `${counseling.start_time.slice(0, 5)}-${counseling.end_time.slice(0, 5)}`,
-        occupation: counseling.occupation,
-        problem_description: counseling.problem_description,
-        hope_after: counseling.hope_after,
-        status: counseling.status,
-        created_at: counseling.created_at
+        id: counselingId,
+        status: counseling.status
     };
 
     return updatedCounseling;
