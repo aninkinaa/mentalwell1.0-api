@@ -2,32 +2,36 @@ const { supabase } = require('../../config/database')
 const { NotFoundError, ValidationError } = require('../../utils/errors')
 
 const psychologistSchedules = async (psychologistId) => {
-  const { data: psychologist, error: psychologistError } = await supabase
+  const psychologistPromise = supabase
     .from('psychologists')
-    .select(`
-      id, price, 
-      users ( name )
-    `)
+    .select(`id, price, users ( name )`)
     .eq('id', psychologistId)
     .single();
+
+  const weeklyPromise = supabase
+    .from('psychologist_weekly_availabilities')
+    .select('id, day, start_time, end_time')
+    .eq('psychologist_id', psychologistId);
+
+  const datePromise = supabase
+    .from('psychologist_schedules')
+    .select('id, date, start_time, end_time')
+    .eq('psychologist_id', psychologistId);
+
+
+  const [
+    { data: psychologist, error: psychologistError },
+    { data: weeklyData, error: weeklyError },
+    { data: dateData, error: dateError }
+  ] = await Promise.all([psychologistPromise, weeklyPromise, datePromise]);
 
   if (psychologistError || !psychologist) {
     throw new NotFoundError('Data psikolog tidak ditemukan');
   }
 
-  const { data: weeklyData, error: weeklyError } = await supabase
-    .from('psychologist_weekly_availabilities')
-    .select('id, day, start_time, end_time')
-    .eq('psychologist_id', psychologistId);
-
   if (weeklyError) {
     throw new Error('Gagal mengambil jadwal mingguan: ' + weeklyError.message);
   }
-
-  const { data: dateData, error: dateError } = await supabase
-    .from('psychologist_schedules')
-    .select('id, date, start_time, end_time')
-    .eq('psychologist_id', psychologistId);
 
   if (dateError) {
     throw new Error('Gagal mengambil jadwal tanggal tertentu: ' + dateError.message);
@@ -57,7 +61,8 @@ const psychologistSchedules = async (psychologistId) => {
     price: psychologist.price,
     schedules: mergedSchedules
   };
-};  
+};
+  
 
 const checkScheduleAvailability = async (psychologistId, date, time) => {
     
