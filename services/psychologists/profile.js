@@ -254,7 +254,7 @@ const changeAvailability = async (userId, availability) => {
 
   return {
     psychologist_id: psyData.id,
-    user_id: psyData.users.id,
+    user_id: userId,
     updated_availability: availability,
     message: `Ketersediaan psikolog berhasil diperbarui menjadi ${availabilityMessage}.`
   };
