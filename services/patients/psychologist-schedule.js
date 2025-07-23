@@ -74,7 +74,7 @@ const checkScheduleAvailability = async (psychologistId, date, time) => {
   
     if (error) {
       if (error.message.includes('invalid input syntax')){
-        throw ValidationError('Format tanggal atau waktu tidak valid');
+        throw new ValidationError('Format tanggal atau waktu tidak valid');
       }
       throw new Error('Gagal mengecek jadwal: ' + error.message);
     }
