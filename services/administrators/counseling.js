@@ -114,25 +114,19 @@ const changePaymentStatus = async (counselingId, updatedStatus, note = null) => 
     .eq('id', counselingId)
     .select(`
       id,
-      schedule_date,
-      start_time,
-      end_time,
-      access_type,
-      status,
-      price,
       payment_status,
       payment_note,
       payment_proof,
       patients (
         id,
         users (
-          name, profile_image, email, phone_number
+          name, email, phone_number
         )
       ),
       psychologists (
-        id, price,
+        id,
         users (
-          name, profile_image, email, phone_number
+          name, email, phone_number
         )
       ),
       created_at
@@ -253,18 +247,11 @@ const changePaymentStatus = async (counselingId, updatedStatus, note = null) => 
     patient_name: updated.patients.users.name,
     patient_email: updated.patients.users.email,
     patient_phone_number: updated.patients.users.phone_number,
-    patient_profpic: updated.patients.users.profile_image,
     psychologist_id: updated.psychologists.id,
     psychologist_name: updated.psychologists.users.name,
-    psychologist_profpic: updated.psychologists.users.profile_image,
-    schedule_date: updated.schedule_date,
-    schedule_time: `${updated.start_time?.slice(0, 5)}-${updated.end_time?.slice(0, 5)}`,
     payment_status: updated.payment_status,
     payment_note: updated.payment_note,
-    price: updated.price,
     status: updated.status,
-    access_type: updated.access_type,
-    created_at: updated.created_at
   };
 };
 
