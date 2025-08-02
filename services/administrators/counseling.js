@@ -121,6 +121,7 @@ const changePaymentStatus = async (counselingId, updatedStatus, note = null) => 
       end_time,
       schedule_date,
       status,
+      access_type,
       patients (
         id,
         users (
