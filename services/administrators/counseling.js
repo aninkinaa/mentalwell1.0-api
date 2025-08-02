@@ -117,6 +117,10 @@ const changePaymentStatus = async (counselingId, updatedStatus, note = null) => 
       payment_status,
       payment_note,
       payment_proof,
+      start_time,
+      end_time,
+      schedule_date,
+      status,
       patients (
         id,
         users (
