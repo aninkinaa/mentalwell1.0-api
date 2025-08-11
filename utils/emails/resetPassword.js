@@ -1,4 +1,4 @@
-const { transporter } = require('./mailer');
+const { sendEmail } = require('./mailer');
 
 const sendPasswordResetEmail = async (toEmail, resetLink) => {
   const mailOptions = {
@@ -29,7 +29,7 @@ const sendPasswordResetEmail = async (toEmail, resetLink) => {
     `
   };
 
-  await transporter.sendMail(mailOptions);
+  await sendEmail(mailOptions);
   console.log('📨 Link reset password dikirim ke:', toEmail);
 };
 
