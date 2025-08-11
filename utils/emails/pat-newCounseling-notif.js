@@ -1,11 +1,11 @@
-const { transporter } = require('./mailer')
+const { sendEmail } = require('./mailer')
 
 const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psychologistName, date, time) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: toEmail,
       subject: '✅ Pembayaran Kamu Sudah Dikonfirmasi!',
-      html: `
+      htmlContent: `
         <h2>Hai, ${patientName}! 👋</h2>
         <p>Terima kasih telah melakukan pembayaran untuk sesi konseling kamu.</p>
         <p>Pembayaranmu sudah <strong>dikonfirmasi</strong> dan sesi kamu dijadwalkan sebagai berikut:</p>
@@ -22,7 +22,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       `
     };
   
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log('📨 Email konfirmasi untuk pasien (scheduled) dikirim ke:', toEmail);
   };
   
@@ -31,7 +31,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       from: process.env.EMAIL_USER,
       to: toEmail,
       subject: '🚀 Sesi Konseling Kamu Sudah Siap!',
-      html: `
+      htmlContent: `
         <h2>Hai, ${patientName}! 👋</h2>
         <p>Pembayaran kamu telah dikonfirmasi dan sesi <strong>konseling real-time</strong> sekarang siap dimulai!</p>
         <p>✨ Psikolog kamu <strong>${psychologistName}</strong> sudah menerima notifikasi untuk memulai percakapan.</p>
@@ -42,7 +42,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       `
     };
   
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log('📨 Email konfirmasi untuk pasien (real-time) dikirim ke:', toEmail);
   };
   
@@ -51,7 +51,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       from: process.env.EMAIL_USER,
       to: toEmail,
       subject: '⚠️ Pembayaran Kamu Ditolak',
-      html: `
+      htmlContent: `
         <h2>Halo, ${patientName}! 👋</h2>
         <p>Kami ingin menginformasikan bahwa pembayaran yang kamu ajukan <strong>tidak dapat kami proses</strong>.</p>
         <p><strong>Alasan Penolakan:</strong> ${reason}</p>
@@ -64,7 +64,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       `
     };
   
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log('📨 Email penolakan pembayaran dikirim ke:', toEmail);
   };
 
@@ -73,7 +73,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       from: process.env.EMAIL_USER,
       to: toEmail,
       subject: '💸 Pengembalian Dana Konseling Kamu Telah Diproses',
-      html: `
+      htmlContent: `
         <h2>Halo ${patientName}! 😊</h2>
         <p>Kami ingin mengabari bahwa pembayaran kamu untuk sesi konseling yang sebelumnya tidak dapat dilanjutkan, <strong>telah berhasil kami kembalikan</strong> ke rekening kamu.</p>
         
@@ -90,7 +90,7 @@ const sendPatientConfirmedScheduledEmail = async (toEmail, patientName, psycholo
       `
     };
   
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log('📨 Email refund berhasil dikirim ke:', toEmail);
   };
 

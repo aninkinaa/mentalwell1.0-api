@@ -1,11 +1,11 @@
-const { transporter } = require('./mailer');
+const { sendEmail } = require('./mailer');
 
 const sendNewCounselingEmail = async (toEmail, psychologistName, patientName, scheduleDate, scheduleTime) => {
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: toEmail,
         subject: '🎉 Ada Sesi Konseling Baru Menanti Anda! 🌟',
-        html: `
+        htmlContent: `
             <h2>Hai, ${psychologistName}! 😊</h2>
             <p>Semoga hari Anda penuh kebahagiaan! Kami punya kabar gembira yang pastinya akan membuat hari Anda semakin spesial:</p>
             <p><strong>Anda mendapatkan pasien baru untuk sesi konseling! 🎉</strong></p>
@@ -35,7 +35,7 @@ const sendChatNowCounselingEmail = async (toEmail, psychologistName, patientName
       from: process.env.EMAIL_USER,
       to: toEmail,
       subject: '🚀 Konseling Real-Time Siap Dimulai Sekarang!',
-      html: `
+      htmlContent: `
         <h2>Hai ${psychologistName}! 👋😊</h2>   
         <p>🎉 Kami punya kambar gembira! Ada pasien yang sedang <strong>menunggu sesi konseling secara real-time</strong> bersama Anda!</p>
         
@@ -53,7 +53,7 @@ const sendChatNowCounselingEmail = async (toEmail, psychologistName, patientName
       `
     };
   
-    await transporter.sendMail(mailOptions);
+    await sendEmail(mailOptions);
     console.log('📩 Notifikasi ceria Chat Now dikirim ke:', toEmail);
   };
   
