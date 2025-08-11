@@ -5,7 +5,7 @@ const sendPasswordResetEmail = async (toEmail, resetLink) => {
     from: process.env.EMAIL_USER,
     to: toEmail,
     subject: '🔐 Reset Password Akun MentalWell',
-    html: `
+    htmlContent: `
       <h2>Hai! 👋</h2>
       <p>Kami menerima permintaan untuk mengatur ulang password akun kamu yang terdaftar dengan email ini.</p>
       <p>Klik tombol di bawah ini untuk mengatur ulang password kamu:</p>
